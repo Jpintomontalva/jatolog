@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jatolog | Bitácora de Autor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #121212; /* Un gris casi negro, más profundo */
+            --text-color: #e0e0e0;
+            --accent-color: #00f5d4; /* Turquesa vibrante estilo tech/lofi */
+            --font-main: 'Nunito', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            padding: 0 20px;
+        }
+
+        header {
+            padding: 60px 0 40px 0;
+            text-align: center;
+        }
+
+        h1 { 
+            font-size: 2.8rem; 
+            letter-spacing: -2px; 
+            font-weight: 700;
+        }
+        
+        /* Efecto de cursor parpadeante en el nombre */
+        span.dot { 
+            color: var(--accent-color); 
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        nav { margin-top: 25px; }
+        nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--accent-color);
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        /* Sección Destacada */
+        .featured-box {
+            border: 1px solid #222;
+            padding: 40px;
+            margin: 50px 0;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #181818, #121212);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-left: 4px solid var(--accent-color); /* Acento turquesa lateral */
+        }
+
+        h2 { margin-bottom: 15px; font-weight: 400; }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: #121212;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 245, 212, 0.3);
+        }
+
+        /* El Log */
+        #log { margin-top: 60px; }
+        
+        .log-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .log-item {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .log-item:hover {
+            background-color: #222;
+        }
+
+        .log-item h3 { 
+            color: var(--accent-color); 
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 80px 0 40px 0;
+            font-size: 0.8rem;
+            opacity: 0.5;
+            letter-spacing: 1px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 { font-size: 2.2rem; }
+            nav a { display: block; margin: 15px 0; }
+            .featured-box { padding: 25px; }
+        }
+    </style>
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body>
+
+    <header class="container">
+        <h1>JATOLOG<span class="dot">_</span></h1>
+        <nav>
+            <a href="#log">El Log</a>
+            <a href="#proyectos">Historias</a>
+            <a href="#contacto">Contacto</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        
+        <section class="featured-box">
+            <h2>Eigengrau</h2>
+            <p>Donde el color desaparece, la historia comienza. Explora mi proyecto principal de fantasía oscura y maquetación técnica.</p>
+            <a href="https://eigengrau-novel.netlify.app/" class="btn" target="_blank">Abrir Expediente</a>
+        </section>
+
+        <section id="log">
+            <h2>Bitácora de Críticas</h2>
+            <div class="log-grid">
+                <article class="log-item">
+                    <h3>Análisis Técnico: Estilo RAE</h3>
+                    <p>Cómo la raya em (—) cambia el ritmo visual de tus diálogos. Un repaso editorial.</p>
+                </article>
+                <article class="log-item">
+                    <h3>Reseña: [Título del Libro]</h3>
+                    <p>Por qué esta obra me obsesionó durante toda la semana. Pros, contras y lecciones.</p>
+                </article>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>SISTEMA JATOLOG // 2026 // CHILE</p>
+    </footer>
+<script>
+  if (window.netlifyIdentity) {
+    window.netlifyIdentity.on("init", user => {
+      if (!user) {
+        window.netlifyIdentity.on("login", () => {
+          document.location.href = "/admin/";
+        });
+      }
+    });
+  }
+</script>
+</body>
+</html>
