@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
     <style>
         :root {
             --bg-color: #0f0f0f;
@@ -15,105 +16,226 @@
             --accent-color: #00f5d4;
             --font-main: 'Nunito', sans-serif;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; scroll-behavior: smooth; }
+        
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.04; pointer-events: none; z-index: 9999;
+        }
+
         body { background-color: var(--bg-color); color: var(--text-color); font-family: var(--font-main); line-height: 1.8; }
-        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-        
-        header { text-align: center; padding-bottom: 60px; }
-        h1 { font-size: 3rem; letter-spacing: -2px; text-transform: uppercase; }
-        span.dot { color: var(--accent-color); animation: blink 1s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* Estilo Wattpad/Blog */
-        .post-card { 
-            background: var(--card-bg); 
-            padding: 30px; 
-            border-radius: 12px; 
-            margin-bottom: 25px; 
-            border-left: 0px solid var(--accent-color);
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
+        .site-wrapper {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            gap: 40px;
+            max-width: 1450px;
+            margin: 0 auto;
+            padding: 40px 20px;
         }
-        .post-card:hover { 
-            transform: scale(1.02); 
-            border-left: 8px solid var(--accent-color);
-            background: #252525;
-        }
-        .post-card h3 { color: var(--accent-color); font-size: 1.5rem; margin-bottom: 10px; }
-        
-        /* Visor de lectura */
-        #reader-view { display: none; background: var(--bg-color); position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow-y: auto; z-index: 100; padding: 40px 20px; }
-        .close-btn { color: var(--accent-color); cursor: pointer; font-weight: bold; margin-bottom: 20px; display: inline-block; }
-        #content-area { max-width: 700px; margin: 0 auto; font-size: 1.2rem; }
-        #content-area h1, #content-area h2 { color: var(--accent-color); margin-top: 40px; }
 
-        .btn-eigengrau { border: 1px solid var(--accent-color); color: var(--accent-color); padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-bottom: 50px; display: inline-block; }
+        .main-content { grid-column: 2; max-width: 800px; width: 100%; margin: 0 auto; }
+
+        /* SIDEBAR PROYECTOS */
+        .sidebar { grid-column: 1; height: auto; padding-top: 120px; }
+        .sidebar-header { font-size: 0.6rem; letter-spacing: 3px; opacity: 0.4; margin-bottom: 20px; text-transform: uppercase; color: var(--accent-color); font-weight: 700; }
+
+        .ongoing-card {
+            background: rgba(26, 26, 26, 0.4); border: 1px solid #222; padding: 15px 20px; border-radius: 8px;
+            border-left: 2px solid var(--accent-color); margin-bottom: 15px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden; cursor: help;
+        }
+        .ongoing-card p.project-title { font-size: 0.8rem; font-weight: bold; line-height: 1.3; color: #fff; }
+        .project-desc { max-height: 0; opacity: 0; font-size: 0.75rem; line-height: 1.4; margin-top: 0; transition: all 0.4s ease; color: var(--text-color); font-weight: 300; }
+        .ongoing-card:hover { background: rgba(0, 245, 212, 0.05); border-color: var(--accent-color); transform: translateX(5px); }
+        .ongoing-card:hover .project-desc { max-height: 100px; opacity: 0.7; margin-top: 10px; }
+
+        /* CONTROLLER ATMOSFÉRICO (Efecto Terminal) */
+        #audio-terminal {
+            position: fixed; bottom: 20px; right: 20px;
+            background: rgba(15, 15, 15, 0.9); border: 1px solid #222;
+            padding: 15px; border-radius: 8px; z-index: 1000;
+            width: 220px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px); border-bottom: 2px solid var(--accent-color);
+        }
+        #audio-terminal h5 { font-size: 0.6rem; letter-spacing: 2px; color: var(--accent-color); margin-bottom: 10px; text-transform: uppercase; }
+        .audio-controls { display: flex; gap: 10px; align-items: center; }
+        .audio-btn { 
+            background: none; border: 1px solid var(--accent-color); color: var(--accent-color);
+            padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-family: var(--font-main);
+            transition: 0.3s;
+        }
+        .audio-btn:hover { background: var(--accent-color); color: #000; }
+        #audio-status { font-size: 0.65rem; opacity: 0.5; margin-top: 8px; font-family: monospace; }
+
+        /* Estética General */
+        header { text-align: center; padding-bottom: 40px; }
+        h1 { font-size: 3rem; letter-spacing: -2px; text-transform: uppercase; margin-bottom: 10px; }
+        .featured-box { border: 1px solid #222; padding: 40px; margin-bottom: 60px; border-radius: 12px; background: linear-gradient(145deg, #181818, #121212); border-left: 4px solid var(--accent-color); }
+        .btn-eigengrau { display: inline-block; background-color: var(--accent-color); color: #121212; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; margin-top: 20px; transition: 0.3s; }
+        .post-card { background: var(--card-bg); padding: 25px; border-radius: 12px; margin-bottom: 20px; transition: 0.4s; cursor: pointer; border: 1px solid transparent; }
+        .post-card:hover { border-color: var(--accent-color); transform: translateY(-3px); background: #222; }
+
+        #reader-view { display: none; background: var(--bg-color); position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow-y: auto; z-index: 2000; padding: 60px 20px; }
+
+        @media (max-width: 1200px) { .site-wrapper { grid-template-columns: 1fr; } .sidebar { order: 2; padding-top: 0; margin-bottom: 40px; } #audio-terminal { width: calc(100% - 40px); } }
     </style>
 </head>
 <body>
 
-    <div id="main-site" class="container">
-        <header>
-            <h1>JATOLOG<span class="dot">_</span></h1>
-            <p style="opacity: 0.6">Bitácora técnica y literaria</p>
-        </header>
+    <div id="youtube-player" style="position: absolute; top: -9999px;"></div>
 
-        <center><a href="https://eigengrau-novel.netlify.app/" class="btn-eigengrau" target="_blank">IR A EIGENGRAU</a></center>
+    <div id="audio-terminal">
+        <h5>// atmósfera_sincronizada</h5>
+        <div class="audio-controls">
+            <button class="audio-btn" onclick="toggleAudio()" id="play-btn">PLAY</button>
+            <button class="audio-btn" onclick="nextTrack()">NEXT</button>
+        </div>
+        <div id="audio-status">SISTEMA IDLE...</div>
+    </div>
 
-        <section id="log-list">
-            <h2 style="margin-bottom: 30px; opacity: 0.8;">// escritos_recientes</h2>
-            <div id="posts-container">Cargando biblioteca...</div>
-        </section>
+    <div class="site-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">// proyectos_ongoing</div>
+            <div class="ongoing-card">
+                <p class="project-title">HAIKE y KOI (WebSerie)</p>
+                <div class="project-desc">Miniserie experimental de dos amigas descubriendo un mundo oculto a simple vista.</div>
+            </div>
+            <div class="ongoing-card">
+                <p class="project-title">Antes que cierre la puerta</p>
+                <div class="project-desc">Diario de un hombre que nunca se queda.</div>
+            </div>
+            <div class="ongoing-card">
+                <p class="project-title">Eigengrau: Tomo 2</p>
+                <div class="project-desc">La continuación del viaje de Hitze y Seelie.</div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header>
+                <h1>JATOLOG<span style="color:var(--accent-color)">_</span></h1>
+                <nav style="margin: 20px 0 40px;">
+                    <a href="#log-list" style="color:var(--text-color); text-decoration:none; margin: 0 10px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Escritos</a>
+                    <a href="#about" style="color:var(--text-color); text-decoration:none; margin: 0 10px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Autor</a>
+                </nav>
+            </header>
+
+            <section class="featured-box">
+                <h2 style="color:var(--accent-color); text-transform: lowercase; margin-bottom: 10px;">eigengrau</h2>
+                <p>Proyecto de fantasía oscura. Un viaje hacia el universo de Eigengrau.</p>
+                <a href="https://eigengrau-novel.netlify.app/" class="btn-eigengrau" target="_blank">Explorar Proyecto</a>
+            </section>
+
+            <section id="log-list">
+                <h2 style="margin-bottom: 25px; opacity: 0.6; font-weight: 300;">// bitácora_reciente</h2>
+                <div id="posts-container">Sincronizando biblioteca...</div>
+            </section>
+
+            <section id="about" style="margin-top: 100px; border-top: 1px solid #222; padding-top: 40px; margin-bottom: 60px;">
+                <h2 style="color:var(--accent-color); font-size: 1.2rem; margin-bottom: 15px;">Sobre Jato</h2>
+                <p>Autor independiente radicado en Olmué, Chile, movido por una profunda pasión por la narrativa de fantasía oscura.</p>
+                <div style="margin-top: 25px;">
+                    <a href="https://www.tiktok.com/@jato_eigen?lang=es" target="_blank" style="color:var(--accent-color); text-decoration:none; margin-right:20px; font-weight: bold;">TikTok</a>
+                    <a href="https://amazon.com/author/jatolog" target="_blank" style="color:var(--accent-color); text-decoration:none; font-weight: bold;">Amazon KDP</a>
+                </div>
+            </section>
+
+            <footer style="text-align: center; padding: 60px 0; opacity: 0.3; font-size: 0.7rem; border-top: 1px solid #222;">
+                SISTEMA JATOLOG // V.1.7 // 2026 // CHILE
+            </footer>
+        </main>
+        <aside style="grid-column: 3;"></aside>
     </div>
 
     <div id="reader-view">
-        <div class="container">
-            <span class="close-btn" onclick="closeReader()">← VOLVER AL LOG</span>
-            <article id="content-area"></article>
+        <div class="container" style="max-width:800px; margin:0 auto;">
+            <span onclick="closeReader()" style="color:var(--accent-color); cursor:pointer; font-weight:bold; display:inline-block; margin-bottom:40px;">← VOLVER AL SISTEMA</span>
+            <article id="content-area" style="font-size: 1.25rem; color: #eee; line-height: 2;"></article>
         </div>
     </div>
 
     <script>
         const repo = "Jpintomontalva/jatolog";
+        let player;
+        // Playlist sugerida: Cult of the Mushroom, Steel & Starlight, etc.
+        const playlist = ['9DZL1ScgUHo', 'FCO5TSf6y3Q', 'WUhMLw6vq8g'];
+        let currentTrack = 0;
+
+        // Función obligatoria para la API de YouTube
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                height: '0', width: '0',
+                videoId: playlist[currentTrack],
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            document.getElementById('audio-status').innerText = "CONEXIÓN ESTABLECIDA.";
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                document.getElementById('audio-status').innerText = "REPRODUCIENDO AMBIENTE...";
+                document.getElementById('play-btn').innerText = "STOP";
+            } else {
+                document.getElementById('audio-status').innerText = "SISTEMA EN ESPERA.";
+                document.getElementById('play-btn').innerText = "PLAY";
+            }
+        }
+
+        function toggleAudio() {
+            if (player.getPlayerState() == YT.PlayerState.PLAYING) {
+                player.pauseVideo();
+            } else {
+                player.playVideo();
+            }
+        }
+
+        function nextTrack() {
+            currentTrack = (currentTrack + 1) % playlist.length;
+            player.loadVideoById(playlist[currentTrack]);
+        }
+
+        // ... (Funciones loadPosts, openReader y closeReader se mantienen igual) ...
 
         async function loadPosts() {
             const container = document.getElementById('posts-container');
             try {
                 const res = await fetch(`https://api.github.com/repos/${repo}/contents/blog`);
+                if (!res.ok) throw new Error();
                 const files = await res.json();
-                
                 container.innerHTML = '';
-                files.reverse().forEach(file => {
-                    if(file.name.endsWith('.md')) {
-                        const title = file.name.split('-').slice(3).join(' ').replace('.md', '').toUpperCase();
-                        const card = document.createElement('div');
-                        card.className = 'post-card';
-                        card.innerHTML = `<h3>${title}</h3><p>Presiona para leer...</p>`;
-                        card.onclick = () => openReader(file.download_url);
-                        container.appendChild(card);
-                    }
+                files.filter(f => f.name.endsWith('.md')).reverse().forEach(file => {
+                    const cleanTitle = file.name.split('-').slice(3).join(' ').replace('.md', '').toUpperCase();
+                    const card = document.createElement('div');
+                    card.className = 'post-card';
+                    card.innerHTML = `<h3>${cleanTitle}</h3><p>Click para iniciar informe de bitácora.</p>`;
+                    card.onclick = () => openReader(file.download_url);
+                    container.appendChild(card);
                 });
-            } catch (e) {
-                container.innerHTML = "Asegúrate de que el repo sea PÚBLICO en GitHub Settings.";
-            }
+            } catch (e) { container.innerHTML = "<p style='opacity:0.5;'>Modo local activo.</p>"; }
         }
 
-        async function openReader(url) {
+        async function openReader(rawUrl) {
             const contentArea = document.getElementById('content-area');
             const reader = document.getElementById('reader-view');
-            const res = await fetch(url);
-            const text = await res.json();
-            // Decodificamos el texto de GitHub (base64)
-            const decodedText = decodeURIComponent(escape(atob(text.content)));
-            
-            contentArea.innerHTML = marked.parse(decodedText);
+            contentArea.innerHTML = "Estableciendo conexión...";
             reader.style.display = 'block';
-            document.getElementById('main-site').style.display = 'none';
+            window.scrollTo(0,0);
+            try {
+                const res = await fetch(rawUrl);
+                const text = await res.text();
+                contentArea.innerHTML = marked.parse(text);
+            } catch (e) { contentArea.innerHTML = "Error de sincronización."; }
         }
 
         function closeReader() {
             document.getElementById('reader-view').style.display = 'none';
-            document.getElementById('main-site').style.display = 'block';
         }
 
         loadPosts();
